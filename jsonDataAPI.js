@@ -2,8 +2,41 @@
  * Chartデータ取得API
  */
 var http = require("http");
+var Q = require('q');
 var querystring = require("querystring");
 var url = require('url');
+
+// ローカルJS
+var cf = require('./cassandraFunctions.js');
+
+// var chartdata = {
+// "config" : {
+// "title" : "Temperature Chart",
+// "subTitle" : "Temperature sensor data",
+// "width" : 800,
+// "height" : 700,
+// "type" : "line",
+// "lineWidth" : 2,
+// "maxY" : 40,
+// "minY" : -10,
+// "paddingTop" : 80,
+// "paddingBottom" : 110,
+// "useVal" : "yes",
+// "useMarker" : "css-ring",
+// "useCssToolTip" : "yes",
+// "markerWidth" : 10,
+// "xScaleRotate" : -90,
+// "xScaleYOffset" : 55,
+// "maxWsColLen" : 18,
+// "colorSet" : [ "#DDA0DD", "#3CB000" ]
+// },
+//
+// "data" : [
+// [ "DateTime", "2016-08-10 14:10", "2016-08-10 14:15",
+// "2016-08-10 14:20", "2016-08-10 14:25", "2016-08-10 14:30",
+// "2016-08-10 14:35", "2016-08-10 14:40" ],
+// [ "℃", 25.5, 25.6, 27.3, 28.4, 27.9, 26.7, 25.5 ] ]
+// };
 
 var chartdata = {
 	"config" : {
@@ -26,13 +59,30 @@ var chartdata = {
 		"maxWsColLen" : 18,
 		"colorSet" : [ "#DDA0DD", "#3CB000" ]
 	},
-
-	"data" : [
-			[ "DateTime", "2016-08-10 14:10", "2016-08-10 14:15",
-					"2016-08-10 14:20", "2016-08-10 14:25", "2016-08-10 14:30",
-					"2016-08-10 14:35", "2016-08-10 14:40" ],
-			[ "℃", 25.5, 25.6, 27.3, 28.4, 27.9, 26.7, 25.5 ] ]
+	data:[]
 };
+//var chartconfig = {
+//	"config" : {
+//	"title" : "Temperature Chart",
+//	"subTitle" : "Temperature sensor data",
+//	"width" : 800,
+//	"height" : 700,
+//	"type" : "line",
+//	"lineWidth" : 2,
+//	"maxY" : 40,
+//	"minY" : -10,
+//	"paddingTop" : 80,
+//	"paddingBottom" : 110,
+//	"useVal" : "yes",
+//	"useMarker" : "css-ring",
+//	"useCssToolTip" : "yes",
+//	"markerWidth" : 10,
+//	"xScaleRotate" : -90,
+//	"xScaleYOffset" : 55,
+//	"maxWsColLen" : 18,
+//	"colorSet" : [ "#DDA0DD", "#3CB000" ]
+//	}
+//};
 
 http.createServer(function(request, response) {
 	var postData = "";
@@ -47,6 +97,7 @@ http.createServer(function(request, response) {
 	});
 	// レスポンス作成
 	request.on("end", function() {
+		chartdata.data = [];
 		// POSTされたパラメータが無ければ
 		if ("" === postParam) {
 			response.writeHead(400, {
@@ -58,7 +109,7 @@ http.createServer(function(request, response) {
 			return;
 		} else {
 			// 日付チェックがエラーなら
-			if(!isValidDate(postParam)){
+			if (!isValidDate(postParam)) {
 				response.writeHead(400, {
 					"Content-Type" : "text/plain"
 				});
@@ -72,9 +123,13 @@ http.createServer(function(request, response) {
 				"Content-Type" : "application/json"
 			});
 			console.log("POST DATA is [" + postParam + "]");
-			// JSONデータを作成して返す
-			response.write(JSON.stringify(chartdata));
-			response.end();
+			Q.when(cf.getDataByDay("2016-08-10")).done(function(jsondata) {
+				// JSONデータを作成して返す
+				chartdata.data = jsondata;
+				console.log(JSON.stringify(chartdata));
+				response.write(JSON.stringify(chartdata));
+				response.end();
+			});
 		}
 	});
 }).listen(8888);
