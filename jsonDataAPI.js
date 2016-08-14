@@ -9,35 +9,7 @@ var url = require('url');
 // ローカルJS
 var cf = require('./cassandraFunctions.js');
 
-// var chartdata = {
-// "config" : {
-// "title" : "Temperature Chart",
-// "subTitle" : "Temperature sensor data",
-// "width" : 800,
-// "height" : 700,
-// "type" : "line",
-// "lineWidth" : 2,
-// "maxY" : 40,
-// "minY" : -10,
-// "paddingTop" : 80,
-// "paddingBottom" : 110,
-// "useVal" : "yes",
-// "useMarker" : "css-ring",
-// "useCssToolTip" : "yes",
-// "markerWidth" : 10,
-// "xScaleRotate" : -90,
-// "xScaleYOffset" : 55,
-// "maxWsColLen" : 18,
-// "colorSet" : [ "#DDA0DD", "#3CB000" ]
-// },
-//
-// "data" : [
-// [ "DateTime", "2016-08-10 14:10", "2016-08-10 14:15",
-// "2016-08-10 14:20", "2016-08-10 14:25", "2016-08-10 14:30",
-// "2016-08-10 14:35", "2016-08-10 14:40" ],
-// [ "℃", 25.5, 25.6, 27.3, 28.4, 27.9, 26.7, 25.5 ] ]
-// };
-
+// ccchart用JSON (dataは後からセットする)
 var chartdata = {
 	"config" : {
 		"title" : "Temperature Chart",
@@ -50,10 +22,13 @@ var chartdata = {
 		"minY" : -10,
 		"paddingTop" : 80,
 		"paddingBottom" : 110,
-		"useVal" : "yes",
-		"useMarker" : "css-ring",
+		"xScaleSkip" : 6,
+		"xScaleXOffset" : -5,
+		"useVal" : "no",
+		"useMarker" : "arc",
 		"useCssToolTip" : "yes",
-		"markerWidth" : 10,
+		"markerWidth" : 1,
+		"hanreiRadius" : 1,
 		"xScaleRotate" : -90,
 		"xScaleYOffset" : 55,
 		"maxWsColLen" : 18,
@@ -61,31 +36,10 @@ var chartdata = {
 	},
 	data:[]
 };
-//var chartconfig = {
-//	"config" : {
-//	"title" : "Temperature Chart",
-//	"subTitle" : "Temperature sensor data",
-//	"width" : 800,
-//	"height" : 700,
-//	"type" : "line",
-//	"lineWidth" : 2,
-//	"maxY" : 40,
-//	"minY" : -10,
-//	"paddingTop" : 80,
-//	"paddingBottom" : 110,
-//	"useVal" : "yes",
-//	"useMarker" : "css-ring",
-//	"useCssToolTip" : "yes",
-//	"markerWidth" : 10,
-//	"xScaleRotate" : -90,
-//	"xScaleYOffset" : 55,
-//	"maxWsColLen" : 18,
-//	"colorSet" : [ "#DDA0DD", "#3CB000" ]
-//	}
-//};
 
+// チャートデータを取得するAPIサーバプロセス
+// POSTリクエストで日付(YYYY-MM-DD)を受け取り該当日のデータを返す
 http.createServer(function(request, response) {
-	var postData = "";
 	var postParam = "";
 
 	// POST時のdata取得ハンドラ
@@ -123,6 +77,7 @@ http.createServer(function(request, response) {
 				"Content-Type" : "application/json"
 			});
 			console.log("POST DATA is [" + postParam + "]");
+			// データ取得
 			Q.when(cf.getDataByDay("2016-08-10")).done(function(jsondata) {
 				// JSONデータを作成して返す
 				chartdata.data = jsondata;

@@ -1,19 +1,29 @@
 /**
  * NodeからCassandraへのアクセスサンプル
+ * 日付計算はmoment-timezoneを利用
+ * 参考：http://momentjs.com/timezone/docs/
  */
-const cassandra = require('cassandra-driver');
+var cassandra = require('cassandra-driver');
+var moment = require("moment-timezone");
 
-//Set the auth provider in the clientOptions when creating the Client instance
-const authProvider = new cassandra.auth.PlainTextAuthProvider('iotapp', 'pwdiotapp');
+// Set the auth provider in the clientOptions when creating the Client instance
+var authProvider = new cassandra.auth.PlainTextAuthProvider('iotapp', 'pwdiotapp');
 
 // prepare client
-const client = new cassandra.Client({ contactPoints: ['ec2-52-193-198-108.ap-northeast-1.compute.amazonaws.com'], authProvider: authProvider, keyspace: 'iot'});
+var client = new cassandra.Client({
+contactPoints : [ 'ec2-52-193-198-108.ap-northeast-1.compute.amazonaws.com' ],
+authProvider : authProvider,
+keyspace : 'iot'
+});
 
-const query = 'SELECT * FROM sens_by_day WHERE s_id=? and s_date=?';
-client.execute(query, ['s001.home','2016-07-27'], function(err, result) {
-	if (err) return console.error(err);
-	const row = result.first();
+var query = 'SELECT * FROM sens_by_day WHERE s_id=? and s_date=?';
+client.execute(query, [ 's001.home', '2016-08-10' ], function(err, result) {
+	if (err)
+		return console.error(err);
+	var row = result.first();
 	// Date型処理
-	dtime = new Date(row['s_time']);
-	console.log(row['s_id']+' ,'+row['s_date']+' '+dtime.toLocaleTimeString({timeZone:'Asia/Tokyo'})+', '+row['s_val']);
+	var localdate = moment.tz(row['s_time'], 'Asia/Tokyo');
+	// console.log(row['s_id']+' ,'+row['s_date']+'
+	// '+dtime.toLocaleTimeString({timeZone:'Asia/Tokyo'})+', '+row['s_val']);
+	console.log(row['s_id'] + ' ,' + localdate.format('YYYY-MM-DD HH:mm') + ', ' + row['s_val']);
 });

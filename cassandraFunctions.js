@@ -1,7 +1,9 @@
 /**
- * NodeからCassandraへのアクセスAPI
+ * NodeからCassandraへのアクセスAPI 日付計算はmoment-timezoneを利用
+ * 参考：http://momentjs.com/timezone/docs/
  */
 var cassandra = require('cassandra-driver');
+var moment = require("moment-timezone");
 var Q = require('q');
 
 // Set the auth provider in the clientOptions when creating the Client instance
@@ -34,13 +36,10 @@ exports.getDataByDay = function(dateTime) {
 		prepare : true
 	}, function(n, row) {
 		// Date型処理
-		dtime = new Date(row['s_time']);
-		// console.log(row['s_id'] + ' ,' + row['s_date'] + ' ' +
-		// dtime.toLocaleTimeString({timeZone : 'Asia/Tokyo'}) + ', ' +
-		// row['s_val']);
-		time.push(dtime.toLocaleTimeString({
-			timeZone : 'Asia/Tokyo'
-		}));
+		var localdate = moment.tz(row['s_time'], 'Asia/Tokyo');
+		// 日付をArrayにセット
+		time.push(localdate.format('YYYY-MM-DD HH:mm'));
+		// 値をArrayにセット
 		value.push(row['s_val']);
 	}, function(err, result) {
 		// すべてのrowに対する処理が完了した後に実行される
@@ -48,19 +47,17 @@ exports.getDataByDay = function(dateTime) {
 			console.error(err);
 			return;
 		}
-		// 取得したデータをJSONにまとめる
+		// 作成したArrayデータをオブジェクトにまとめる
 		tmpdata.push(time, value);
-//		var content = {data:[]};
-//		content.data = tmpdata;
+		// 復帰値にセット
 		data.resolve(tmpdata);
-		// console.log(JSON.stringify(data));
 	});
 	return data.promise;
 }
 
-// デバッグ用関数呼び出し
+// デバッグ用関数呼び出し (未使用時はコメントアウトする)
 // rowの取得より先に関数が復帰してしまう(非同期処理)ため、Qで待ち合わせする
+// 
 // Q.when(module.exports.getDataByDay("2016-08-10")).done(function(ret) {
 // console.log("getDataByDay returns [" + JSON.stringify(ret) + "]");
 // });
-
