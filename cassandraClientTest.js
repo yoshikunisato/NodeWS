@@ -17,7 +17,7 @@ keyspace : 'iot'
 });
 
 var query = 'SELECT * FROM sens_by_day WHERE s_id=? and s_date=?';
-client.execute(query, [ 's001.home', '2016-08-10' ], function(err, result) {
+client.execute(query, [ 's001.home', '2016-08-14' ], function(err, result) {
 	if (err)
 		return console.error(err);
 	var row = result.first();

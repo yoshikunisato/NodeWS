@@ -78,7 +78,7 @@ http.createServer(function(request, response) {
 			});
 			console.log("POST DATA is [" + postParam + "]");
 			// データ取得
-			Q.when(cf.getDataByDay("2016-08-10")).done(function(jsondata) {
+			Q.when(cf.getDataByDay(postParam)).done(function(jsondata) {
 				// JSONデータを作成して返す
 				chartdata.data = jsondata;
 				console.log(JSON.stringify(chartdata));
