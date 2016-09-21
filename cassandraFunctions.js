@@ -11,9 +11,10 @@ var authProvider = new cassandra.auth.PlainTextAuthProvider('iotapp', 'pwdiotapp
 
 // prepare client
 var client = new cassandra.Client({
-contactPoints : [ 'ec2-52-193-198-108.ap-northeast-1.compute.amazonaws.com' ],
-authProvider : authProvider,
-keyspace : 'iot'
+	//contactPoints : [ 'ec2-52-193-198-108.ap-northeast-1.compute.amazonaws.com' ],
+	contactPoints : [ 'cassandra.japanwest.cloudapp.azure.com' ],
+	authProvider : authProvider,
+	keyspace : 'iot'
 });
 
 // Sensor ID
