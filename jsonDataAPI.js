@@ -6,6 +6,10 @@ var Q = require('q');
 var querystring = require("querystring");
 var url = require('url');
 
+// 環境変数から定数を設定
+var port = (process.env.PORT || 8888);
+var host = (process.env.VCAP_APP_HOST || 'localhost');
+
 // ローカルJS
 var cf = require('./cassandraFunctions.js');
 
@@ -87,7 +91,7 @@ http.createServer(function(request, response) {
 			});
 		}
 	});
-}).listen(8888);
+}).listen(port);
 
 // 日付フォーマットバリデータ
 // 参考：http://takamints.hatenablog.jp/entry/2014/10/17/071115
@@ -109,4 +113,4 @@ function isValidDate(s) {
 	return true;
 }
 
-console.log('Server running at http://127.0.0.1:8888/');
+console.log('Server running at http://'+host+':'+port+'/');

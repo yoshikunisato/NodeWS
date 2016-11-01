@@ -1,0 +1,3 @@
+applications:
+- name: jsonDataAPI
+  command: node jsonDataAPI.js
