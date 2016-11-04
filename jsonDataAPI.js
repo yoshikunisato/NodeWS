@@ -48,10 +48,12 @@ http.createServer(function(request, response) {
 
 	// POST時のdata取得ハンドラ
 	request.on("data", function(chunk) {
+		console.log('Request: chunk['+chunk.toString()+']');
 		postParam = "";
 		var urlinfo = url.parse('/?' + chunk.toString(), true);
 		// POSTされた"dateTime"パラメータを抽出
 		postParam = urlinfo.query.dateTime;
+		console.log('Request: postParam['+postParam+']');
 	});
 	// レスポンス作成
 	request.on("end", function() {

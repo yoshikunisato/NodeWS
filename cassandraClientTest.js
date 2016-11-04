@@ -11,7 +11,8 @@ var authProvider = new cassandra.auth.PlainTextAuthProvider('iotapp', 'pwdiotapp
 
 // prepare client
 var client = new cassandra.Client({
-contactPoints : [ 'cassandra.japanwest.cloudapp.azure.com' ],
+//contactPoints : [ 'cassandra.japanwest.cloudapp.azure.com' ],
+contactPoints : [ '133.162.209.156' ], // Fujitsu K5
 authProvider : authProvider,
 keyspace : 'iot'
 });
